@@ -1,0 +1,5 @@
+#!/bin/sh
+module load miniconda; conda activate nn_gpu
+python update_plot_folder_in_gitignore.py
+git add .gitignore
+
