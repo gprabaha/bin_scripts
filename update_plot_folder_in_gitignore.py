@@ -24,8 +24,13 @@ for plot_type in os.listdir(root_dir):
 
 # Update .gitignore
 with open('.gitignore', 'w') as gitignore:
-    gitignore.write('/plots/*\n')
+    # Ignore __pycache__ directories and files starting with "error"
+    gitignore.write('__pycache__/\n')
+    gitignore.write('error*\n')
+    
+    # Ignore all folders in the plots directory
     gitignore.write('!/plots/**/\n')
+    
     if latest_date_path:
         # Convert to relative path
         relative_path = os.path.relpath(latest_date_path, os.getcwd())
