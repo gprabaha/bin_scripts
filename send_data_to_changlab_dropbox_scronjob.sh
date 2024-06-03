@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Generate the date string
+DATE_STR=$(date +%Y%m%d_%H%M%S)
+
+# Define log file paths
+LOG_DIR="$HOME/logs"
+OUT_LOG="$LOG_DIR/send_data_to_changlab_dropbox_${DATE_STR}.log"
+ERR_LOG="$LOG_DIR/send_data_to_changlab_dropbox_${DATE_STR}.err"
+
+# Create log directory if it doesn't exist
+mkdir -p "$LOG_DIR"
+
+# Redirect stdout and stderr to log files
+exec > >(tee -a "$OUT_LOG") 2> >(tee -a "$ERR_LOG" >&2)
+
 # Dropbox path
 DROPBOX_PATH="/prabaha_changlab/data_backup"
 LOCAL_PATH="/gpfs/milgram/project/chang/pg496/data_dir"
