@@ -46,7 +46,7 @@ upload_files() {
     if [ -d "$item" ]; then
       ensure_directory "$dropbox_dest_path"
       echo -e "${tabs}Folder: $local_name"
-      upload_files "$item" "$dropbox_dest_path" "$new_depth" "$max_parallel_jobs"
+      upload_files "$item" "$dropbox_dest_path" "$new_depth" "$max_parallel_jobs" # Pass max_parallel_jobs
     else
       # Get the modification time of the local file
       local local_mod_time=$(stat -c %Y "$item")
@@ -62,7 +62,7 @@ upload_files() {
         echo -e "${tabs}Uploading: $local_name"
         dbxcli put "$item" "$dropbox_dest_path" > /dev/null 2>&1 &
 
-        # Limit the number of parallel jobs
+        # Limit the number of parallel jobs using max_parallel_jobs
         while (( $(jobs -r | wc -l) >= max_parallel_jobs )); do
           sleep 1
         done
@@ -83,4 +83,3 @@ upload_files "$LOCAL_PATH" "$DROPBOX_PATH" 0 "$max_parallel_jobs"
 wait
 
 echo "Upload completed."
-
