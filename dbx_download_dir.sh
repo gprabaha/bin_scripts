@@ -26,15 +26,22 @@ download_files() {
     local total_items=$(dbxcli ls -l "$path" 2>/dev/null | awk 'NR>1 {print $NF}' | wc -l | awk '{$1=$1};1')
     local current_item=1
     tabs+="    "
+
     dbxcli ls -l "$path" | awk 'NR>1 {print $NF}' | while read -r item; do
       local local_name="${item##*/}"
       echo -e "${tabs}Item $current_item of $total_items"
       local new_depth=$((depth+1))
-      download_files "$item" "$local_dest_path" "$new_depth" "$max_parallel_jobs"
+      download_files "$item" "$local_dest_path" "$new_depth" "$max_parallel_jobs" &
       ((current_item++))
+
+      # Limit number of parallel downloads
+      while (( $(jobs -r | wc -l) >= max_parallel_jobs )); do
+        sleep 1
+      done
     done
+    wait  # Wait for all background processes to complete
   else
-    echo "$path" >> ongoing_downloads.log  # Track active downloads
+    echo "$path" >> ongoing_downloads.log
     echo -e "${tabs}Downloading: $top_name"
 
     # Capture expected Dropbox file size
@@ -52,7 +59,7 @@ download_files() {
     if [[ "$dropbox_size" != "$local_size" ]]; then
       echo "Warning: File $top_name may be incomplete!" >> download_errors.log
     else
-      echo "$path" >> completed_downloads.log  # Mark as completed
+      echo "$path" >> completed_downloads.log
     fi
   fi
 }
